@@ -86,6 +86,14 @@ class Food:
     def __init__(self, prepend):
         self.coord = [prepend['y'], prepend['x']]
 
+    def order(nourriture, cls):
+        foods = [
+                (nourriture[i], distance(cls, nourriture[i]))
+                for i in range(len(nourriture))
+                ]
+        foods_ordered = sorted(foods, key = lambda foods: foods[1])
+        foods_reordered = [item[0] for item in foods_ordered]
+        return(foods_reordered)
 
 class Enemy:
     def __init__(self, prepend, nourriture):
@@ -94,11 +102,7 @@ class Enemy:
         self.body = [[prepend['body']['data'][j]['y'], prepend['body']['data'][j]['x']] for j in range(1, len(prepend['body']['data'])-1)]
         self.length = prepend['length']
         self.id = prepend['id']
-        self.foods = [
-                (nourriture[i], distance(self, nourriture[i]))
-                for i in range(len(nourriture))
-                ]
-        self.foods_ordered = sorted(self.foods, key = lambda foods: foods[1])
+        self.foods_ordered = Food.order(nourriture, self)
 
         # distance to food
         # distance to me
@@ -112,11 +116,7 @@ class Me:
         self.health = prepend['health']
         self.length = prepend['length']
         self.id = prepend['id']
-        self.foods = [
-                (nourriture[i], distance(self, nourriture[i]))
-                for i in range(len(nourriture))
-                ]
-        self.foods_ordered = sorted(self.foods, key = lambda foods: foods[1])
+        self.foods_ordered = Food.order(nourriture, self)
         #self.distance_food = distance(self, )
 
 
@@ -137,12 +137,15 @@ def safe(agrid, snake, prepend):
             'right': [snake.head[0], snake.head[1]+1],
             } 
 
-    space = [key for key in directions
-            if 0 <= directions[key][0] < prepend['height']
-            and 0 <= directions[key][1] < prepend['width']
-            and agrid.coord[directions[key][0]][directions[key][1]].is_snakebody == False 
-            and agrid.coord[directions[key][0]][directions[key][1]].is_snakenemy == False # Update this condition - set to two block buffer
-            ]
+    space = []
+
+    for key in directions:
+        if 0 <= directions[key][0] < prepend['height'] and 0 <= directions[key][1] < prepend['width'] and agrid.coord[directions[key][0]][directions[key][1]].is_snakebody == False and agrid.coord[directions[key][0]][directions[key][1]].is_snakenemy == False: 
+            if agrid.coord[directions[key][0]][directions[key][1]].is_snaketail == True:
+                if distance(snake, snake.foods_ordered[0]) != 1:
+                    space.append(key)
+            else:
+                space.append(key)
 
     return(space)
     
@@ -176,7 +179,6 @@ def move():
     grid = Grid(data)
 
     foods = [Food(data['food']['data'][i]) for i in range(len(data['food']['data']))]
-    #foods.sort(key = lambda food: food.distance)
 
     me = Me(data['you'], foods) 
 
@@ -190,7 +192,7 @@ def move():
     
     # Route setter
     safety = safe(grid, me, data)
-    route = path(me, foods[0], grid)
+    route = path(me, me.foods_ordered[0], grid)
 
     for item in safety:
         if item in route:
@@ -204,7 +206,6 @@ def move():
     print('route: %s' % (route))
     print('safety: %s' % (safety))
     print('output: %s' % (output))
-    print(enemy[0].foods_ordered[0], enemy[1].foods_ordered[0])
 
     return {
         'move': output,
