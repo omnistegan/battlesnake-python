@@ -71,61 +71,70 @@ class Grid:
                 self.coord[instance[i].coord[0]][instance[i].coord[1]].is_food = True
         elif obj == 'enemy':
             for i in range(len(instance)):
-                for j in range(len(instance[i].coord)):
-                    if j == 0:
-                        self.coord[instance[i].coord[j][0]][instance[i].coord[j][1]].is_snakenemy = True
-                    elif j == len(instance[i].coord)-1:
-                        self.coord[instance[i].coord[j][0]][instance[i].coord[j][1]].is_snaketail = True
-                    else:
-                        self.coord[instance[i].coord[j][0]][instance[i].coord[j][1]].is_snakebody = True
+                self.coord[instance[i].head[0]][instance[i].head[1]].is_snakenemy = True
+                self.coord[instance[i].tail[0]][instance[i].tail[1]].is_snaketail = True
+                for j in range(len(instance[i].body)):
+                    self.coord[instance[i].body[j][0]][instance[i].body[j][1]].is_snakebody = True
         elif obj == 'me':
-            for j in range(len(instance.coord)):
-                if j == 0:
-                    self.coord[instance.coord[j][0]][instance.coord[j][1]].is_snakehead = True
-                elif j == len(instance.coord)-1:
-                    self.coord[instance.coord[j][0]][instance.coord[j][1]].is_snaketail = True
-                else:
-                    self.coord[instance.coord[j][0]][instance.coord[j][1]].is_snakebody = True
+            self.coord[instance.head[0]][instance.head[1]].is_snakehead = True
+            self.coord[instance.tail[0]][instance.tail[1]].is_snaketail = True    
+            for j in range(len(instance.body)):
+                self.coord[instance.body[j][0]][instance.body[j][1]].is_snakebody = True
                  
 
 class Food:
-    def __init__(self, prepend, moi):
+    def __init__(self, prepend):
         self.coord = [prepend['y'], prepend['x']]
-        self.distance = distance(moi, self)
 
 
 class Enemy:
-    def __init__(self, prepend):
-        self.coord = [[prepend['body']['data'][j]['y'], prepend['body']['data'][j]['x']] for j in range(len(prepend['body']['data']))]
+    def __init__(self, prepend, nourriture):
+        self.head = [prepend['body']['data'][0]['y'], prepend['body']['data'][0]['x']]
+        self.tail = [prepend['body']['data'][-1]['y'], prepend['body']['data'][-1]['x']]
+        self.body = [[prepend['body']['data'][j]['y'], prepend['body']['data'][j]['x']] for j in range(1, len(prepend['body']['data'])-1)]
         self.length = prepend['length']
         self.id = prepend['id']
+        self.foods = [
+                (nourriture[i], distance(self, nourriture[i]))
+                for i in range(len(nourriture))
+                ]
+        self.foods_ordered = sorted(self.foods, key = lambda foods: foods[1])
+
         # distance to food
         # distance to me
 
 
 class Me:
-    def __init__(self, prepend):
-        self.coord = [[prepend['body']['data'][j]['y'], prepend['body']['data'][j]['x']] for j in range(len(prepend['body']['data']))]
+    def __init__(self, prepend, nourriture):
+        self.head = [prepend['body']['data'][0]['y'], prepend['body']['data'][0]['x']]
+        self.tail = [prepend['body']['data'][-1]['y'], prepend['body']['data'][-1]['x']]
+        self.body = [[prepend['body']['data'][j]['y'], prepend['body']['data'][j]['x']] for j in range(1, len(prepend['body']['data'])-1)]
         self.health = prepend['health']
         self.length = prepend['length']
         self.id = prepend['id']
+        self.foods = [
+                (nourriture[i], distance(self, nourriture[i]))
+                for i in range(len(nourriture))
+                ]
+        self.foods_ordered = sorted(self.foods, key = lambda foods: foods[1])
+        #self.distance_food = distance(self, )
 
 
 ################################################################################
 
 
 def distance(frm, to):
-    dy = abs(to.coord[0] - frm.coord[0][0])
-    dx = abs(to.coord[1] - frm.coord[0][1])
+    dy = abs(to.coord[0] - frm.head[0])
+    dx = abs(to.coord[1] - frm.head[1])
     return(sum([dy, dx]))
     
 
 def safe(agrid, snake, prepend):
     directions = {
-            'up': [snake.coord[0][0]-1, snake.coord[0][1]],
-            'down': [snake.coord[0][0]+1, snake.coord[0][1]],
-            'left': [snake.coord[0][0], snake.coord[0][1]-1],
-            'right': [snake.coord[0][0], snake.coord[0][1]+1],
+            'up': [snake.head[0]-1, snake.head[1]],
+            'down': [snake.head[0]+1, snake.head[1]],
+            'left': [snake.head[0], snake.head[1]-1],
+            'right': [snake.head[0], snake.head[1]+1],
             } 
 
     space = [key for key in directions
@@ -139,8 +148,8 @@ def safe(agrid, snake, prepend):
     
 
 def path(frm, to, agrid):
-    dy = to.coord[0] - frm.coord[0][0]
-    dx = to.coord[1] - frm.coord[1][1]
+    dy = to.coord[0] - frm.head[0]
+    dx = to.coord[1] - frm.head[1]
     possible = []
 
     if dy > 0:
@@ -165,12 +174,13 @@ def move():
     data = bottle.request.json
 
     grid = Grid(data)
-    me = Me(data['you']) 
 
-    foods = [Food(data['food']['data'][i], me) for i in range(len(data['food']['data']))]
-    foods.sort(key = lambda food: food.distance)
+    foods = [Food(data['food']['data'][i]) for i in range(len(data['food']['data']))]
+    #foods.sort(key = lambda food: food.distance)
 
-    enemy = [Enemy(data['snakes']['data'][i]) for i in range(len(data['snakes']['data'])) if data['snakes']['data'][i]['id'] != me.id]
+    me = Me(data['you'], foods) 
+
+    enemy = [Enemy(data['snakes']['data'][i], foods) for i in range(len(data['snakes']['data'])) if data['snakes']['data'][i]['id'] != me.id]
 
     # Grid for log purposes
     grid.place(foods, 'food')
@@ -194,6 +204,7 @@ def move():
     print('route: %s' % (route))
     print('safety: %s' % (safety))
     print('output: %s' % (output))
+    print(enemy[0].foods_ordered[0], enemy[1].foods_ordered[0])
 
     return {
         'move': output,
