@@ -39,7 +39,9 @@ class Cell:
         self.snake_id = None
         self.is_food = False
         self.coord = (row, column)
-        self.symbol = {'snakehead': 's', 'snakenemy': 'e', 'snakebody': 'b', 'snaketail': 't', 'food': 'f', 'cell': '_'}
+        self.symbol = {'snakehead': 's', 'snakenemy': 'e', 
+                       'snakebody': 'b', 'snaketail': 't', 
+                       'food': 'f', 'cell': '_'}
     
     def to_symbol(self):
         if self.is_snakehead == True:
@@ -97,16 +99,19 @@ class Food:
 
     def order(nourriture, cls):
         foods = [(nourriture[i], distance(cls, nourriture[i].coord))
-                for i in range(len(nourriture))]
+                 for i in range(len(nourriture))]
         foods_ordered = sorted(foods, key = lambda foods: foods[1])
         foods_reordered = [item[0] for item in foods_ordered]
         return(foods_reordered)
 
 class Enemy:
     def __init__(self, prepend, nourriture):
-        self.head = [prepend['body']['data'][0]['y'], prepend['body']['data'][0]['x']]
-        self.tail = [prepend['body']['data'][-1]['y'], prepend['body']['data'][-1]['x']]
-        self.body = [[prepend['body']['data'][j]['y'], prepend['body']['data'][j]['x']] 
+        self.head = [prepend['body']['data'][0]['y'],
+                     prepend['body']['data'][0]['x']]
+        self.tail = [prepend['body']['data'][-1]['y'], 
+                     prepend['body']['data'][-1]['x']]
+        self.body = [[prepend['body']['data'][j]['y'],
+                      prepend['body']['data'][j]['x']] 
                       for j in range(1, len(prepend['body']['data'])-1)]
         self.length = prepend['length']
         self.id = prepend['id']
@@ -119,9 +124,12 @@ class Enemy:
 
 class Me:
     def __init__(self, prepend, nourriture):
-        self.head = [prepend['body']['data'][0]['y'], prepend['body']['data'][0]['x']]
-        self.tail = [prepend['body']['data'][-1]['y'], prepend['body']['data'][-1]['x']]
-        self.body = [[prepend['body']['data'][j]['y'], prepend['body']['data'][j]['x']] 
+        self.head = [prepend['body']['data'][0]['y'], 
+                     prepend['body']['data'][0]['x']]
+        self.tail = [prepend['body']['data'][-1]['y'], 
+                     prepend['body']['data'][-1]['x']]
+        self.body = [[prepend['body']['data'][j]['y'], 
+                      prepend['body']['data'][j]['x']] 
                       for j in range(1, len(prepend['body']['data'])-1)]
         self.health = prepend['health']
         self.length = prepend['length']
@@ -151,11 +159,15 @@ def safe(agrid, moi, enemy, prepend):
 
     for key in directions:
         if (0 <= directions[key][0] < prepend['height'] 
-            and 0 <= directions[key][1] < prepend['width'] 
-            and agrid.coord[directions[key][0]][directions[key][1]].is_snakebody == False 
-            and agrid.coord[directions[key][0]][directions[key][1]].is_snakenemy == False): 
-            if agrid.coord[directions[key][0]][directions[key][1]].is_snaketail == True:
-                if agrid.coord[directions[key][0]][directions[key][1]].snake_id != moi.id:
+                and 0 <= directions[key][1] < prepend['width'] 
+                and agrid.coord[directions[key][0]][directions[key][1]].
+                    is_snakebody == False 
+                and agrid.coord[directions[key][0]][directions[key][1]].
+                    is_snakenemy == False): 
+            if agrid.coord[directions[key][0]][directions[key][1]].
+                        is_snaketail == True:
+                if agrid.coord[directions[key][0]][directions[key][1]].
+                            snake_id != moi.id:
                     target_snake = [target for target in enemy 
                                     if target.id == agrid.coord[directions[key][0]][directions[key][1]].snake_id]
                     if distance(target_snake[0], target_snake[0].foods_ordered[0].coord) > 1:
