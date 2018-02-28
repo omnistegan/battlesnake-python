@@ -96,7 +96,7 @@ class Food:
         self.coord = [prepend['y'], prepend['x']]
 
     def order(nourriture, cls):
-        foods = [(nourriture[i], distance(cls, nourriture[i]))
+        foods = [(nourriture[i], distance(cls, nourriture[i].coord))
                 for i in range(len(nourriture))]
         foods_ordered = sorted(foods, key = lambda foods: foods[1])
         foods_reordered = [item[0] for item in foods_ordered]
@@ -111,7 +111,7 @@ class Enemy:
         self.length = prepend['length']
         self.id = prepend['id']
         self.foods_ordered = Food.order(nourriture, self)
-        self.dist_closestfood = distance(self, self.foods_ordered[0])
+        self.dist_closestfood = distance(self, self.foods_ordered[0].coord)
 
         # distance to food
         # distance to me
@@ -127,15 +127,15 @@ class Me:
         self.length = prepend['length']
         self.id = prepend['id']
         self.foods_ordered = Food.order(nourriture, self)
-        self.dist_closestfood = distance(self, self.foods_ordered[0])
+        self.dist_closestfood = distance(self, self.foods_ordered[0].coord)
 
 
 ################################################################################
 
 
 def distance(frm, to):
-    dy = abs(to.coord[0] - frm.head[0])
-    dx = abs(to.coord[1] - frm.head[1])
+    dy = abs(to[0] - frm.head[0])
+    dx = abs(to[1] - frm.head[1])
     return(sum([dy, dx]))
     
 
@@ -158,11 +158,10 @@ def safe(agrid, moi, enemy, prepend):
                 if agrid.coord[directions[key][0]][directions[key][1]].snake_id != moi.id:
                     target_snake = [target for target in enemy 
                                     if target.id == agrid.coord[directions[key][0]][directions[key][1]].snake_id]
-                    print(distance(target_snake[0], target_snake[0].foods_ordered[0]))
-                    if distance(target_snake[0], target_snake[0].foods_ordered[0]) > 1:
+                    if distance(target_snake[0], target_snake[0].foods_ordered[0].coord) > 1:
                         space.append(key)
                 elif agrid.coord[directions[key][0]][directions[key][1]].snake_id == moi.id: # Only valid when goal is food
-                    if distance(moi, moi.foods_ordered[0]) > 1:
+                    if distance(moi, moi.foods_ordered[0].coord) > 1:
                         space.append(key)
             else:
                 space.append(key)
@@ -171,8 +170,8 @@ def safe(agrid, moi, enemy, prepend):
     
 
 def path(frm, to, agrid):
-    dy = to.coord[0] - frm.head[0]
-    dx = to.coord[1] - frm.head[1]
+    dy = to[0] - frm.head[0]
+    dx = to[1] - frm.head[1]
     possible = []
 
     if dy > 0:
@@ -215,7 +214,7 @@ def move():
     
     # Route setter
     safety = safe(grid, me, enemies, data)
-    route = path(me, me.foods_ordered[0], grid)
+    route = path(me, me.foods_ordered[0].coord, grid)
 
     for item in safety:
         if item in route:
