@@ -1,10 +1,10 @@
 import bottle
 import os
+from random import randint
 
 @bottle.route('/static/<path:path>')
 def static(path):
     return bottle.static_file(path, root='static/')
-
 
 @bottle.post('/start')
 def start():
@@ -36,6 +36,7 @@ class Cell:
         self.is_snakenemy = False # head of enemy snake(s)
         self.is_snakebody = False
         self.is_snaketail = False
+        self.snake_id = None
         self.is_food = False
         self.coord = (row, column)
         self.symbol = {'snakehead': 's', 'snakenemy': 'e', 'snakebody': 'b', 'snaketail': 't', 'food': 'f', 'cell': '_'}
@@ -57,7 +58,9 @@ class Cell:
 
 class Grid:
     def __init__(self, prepend):
-        self.coord = [[Cell(row, col) for col in range(prepend['width'])] for row in range(prepend['height'])]
+        self.coord = [[Cell(row, col) 
+                       for col in range(prepend['width'])] 
+                       for row in range(prepend['height'])]
 
     def print(self):
         for row in self.coord:
@@ -72,14 +75,20 @@ class Grid:
         elif obj == 'enemy':
             for i in range(len(instance)):
                 self.coord[instance[i].head[0]][instance[i].head[1]].is_snakenemy = True
+                self.coord[instance[i].head[0]][instance[i].head[1]].snake_id = instance[i].id
                 self.coord[instance[i].tail[0]][instance[i].tail[1]].is_snaketail = True
+                self.coord[instance[i].tail[0]][instance[i].tail[1]].snake_id = instance[i].id
                 for j in range(len(instance[i].body)):
                     self.coord[instance[i].body[j][0]][instance[i].body[j][1]].is_snakebody = True
+                    self.coord[instance[i].body[j][0]][instance[i].body[j][1]].snake_id = instance[i].id
         elif obj == 'me':
             self.coord[instance.head[0]][instance.head[1]].is_snakehead = True
+            self.coord[instance.head[0]][instance.head[1]].snake_id = instance.id
             self.coord[instance.tail[0]][instance.tail[1]].is_snaketail = True    
+            self.coord[instance.tail[0]][instance.tail[1]].snake_id = instance.id
             for j in range(len(instance.body)):
                 self.coord[instance.body[j][0]][instance.body[j][1]].is_snakebody = True
+                self.coord[instance.body[j][0]][instance.body[j][1]].snake_id = instance.id
                  
 
 class Food:
@@ -87,10 +96,8 @@ class Food:
         self.coord = [prepend['y'], prepend['x']]
 
     def order(nourriture, cls):
-        foods = [
-                (nourriture[i], distance(cls, nourriture[i]))
-                for i in range(len(nourriture))
-                ]
+        foods = [(nourriture[i], distance(cls, nourriture[i]))
+                for i in range(len(nourriture))]
         foods_ordered = sorted(foods, key = lambda foods: foods[1])
         foods_reordered = [item[0] for item in foods_ordered]
         return(foods_reordered)
@@ -100,10 +107,11 @@ class Enemy:
         self.head = [prepend['body']['data'][0]['y'], prepend['body']['data'][0]['x']]
         self.tail = [prepend['body']['data'][-1]['y'], prepend['body']['data'][-1]['x']]
         self.body = [[prepend['body']['data'][j]['y'], prepend['body']['data'][j]['x']] 
-                for j in range(1, len(prepend['body']['data'])-1)]
+                      for j in range(1, len(prepend['body']['data'])-1)]
         self.length = prepend['length']
         self.id = prepend['id']
         self.foods_ordered = Food.order(nourriture, self)
+        self.dist_closestfood = distance(self, self.foods_ordered[0])
 
         # distance to food
         # distance to me
@@ -114,12 +122,12 @@ class Me:
         self.head = [prepend['body']['data'][0]['y'], prepend['body']['data'][0]['x']]
         self.tail = [prepend['body']['data'][-1]['y'], prepend['body']['data'][-1]['x']]
         self.body = [[prepend['body']['data'][j]['y'], prepend['body']['data'][j]['x']] 
-                for j in range(1, len(prepend['body']['data'])-1)]
+                      for j in range(1, len(prepend['body']['data'])-1)]
         self.health = prepend['health']
         self.length = prepend['length']
         self.id = prepend['id']
         self.foods_ordered = Food.order(nourriture, self)
-        #self.distance_food = distance(self, )
+        self.dist_closestfood = distance(self, self.foods_ordered[0])
 
 
 ################################################################################
@@ -131,24 +139,31 @@ def distance(frm, to):
     return(sum([dy, dx]))
     
 
-def safe(agrid, snake, prepend):
+def safe(agrid, moi, enemy, prepend):
     directions = {
-            'up': [snake.head[0]-1, snake.head[1]],
-            'down': [snake.head[0]+1, snake.head[1]],
-            'left': [snake.head[0], snake.head[1]-1],
-            'right': [snake.head[0], snake.head[1]+1],
+            'up': [moi.head[0]-1, moi.head[1]],
+            'down': [moi.head[0]+1, moi.head[1]],
+            'left': [moi.head[0], moi.head[1]-1],
+            'right': [moi.head[0], moi.head[1]+1],
             } 
 
     space = []
 
     for key in directions:
         if (0 <= directions[key][0] < prepend['height'] 
-                and 0 <= directions[key][1] < prepend['width'] 
-                and agrid.coord[directions[key][0]][directions[key][1]].is_snakebody == False 
-                and agrid.coord[directions[key][0]][directions[key][1]].is_snakenemy == False): 
+            and 0 <= directions[key][1] < prepend['width'] 
+            and agrid.coord[directions[key][0]][directions[key][1]].is_snakebody == False 
+            and agrid.coord[directions[key][0]][directions[key][1]].is_snakenemy == False): 
             if agrid.coord[directions[key][0]][directions[key][1]].is_snaketail == True:
-                if distance(snake, snake.foods_ordered[0]) != 1:
-                    space.append(key)
+                if agrid.coord[directions[key][0]][directions[key][1]].snake_id != moi.id:
+                    target_snake = [target for target in enemy 
+                                    if target.id == agrid.coord[directions[key][0]][directions[key][1]].snake_id]
+                    print(distance(target_snake[0], target_snake[0].foods_ordered[0]))
+                    if distance(target_snake[0], target_snake[0].foods_ordered[0]) > 1:
+                        space.append(key)
+                elif agrid.coord[directions[key][0]][directions[key][1]].snake_id == moi.id: # Only valid when goal is food
+                    if distance(moi, moi.foods_ordered[0]) > 1:
+                        space.append(key)
             else:
                 space.append(key)
 
@@ -183,22 +198,23 @@ def move():
 
     grid = Grid(data)
 
-    foods = [Food(data['food']['data'][i]) for i in range(len(data['food']['data']))]
+    foods = [Food(data['food']['data'][i]) 
+             for i in range(len(data['food']['data']))]
 
     me = Me(data['you'], foods) 
 
-    enemy = [Enemy(data['snakes']['data'][i], foods) 
-            for i in range(len(data['snakes']['data'])) 
-            if data['snakes']['data'][i]['id'] != me.id]
+    enemies = [Enemy(data['snakes']['data'][i], foods) 
+               for i in range(len(data['snakes']['data'])) 
+               if data['snakes']['data'][i]['id'] != me.id]
 
     # Grid for log purposes
     grid.place(foods, 'food')
-    grid.place(enemy, 'enemy')
+    grid.place(enemies, 'enemy')
     grid.place(me, 'me')
     grid.print()
     
     # Route setter
-    safety = safe(grid, me, data)
+    safety = safe(grid, me, enemies, data)
     route = path(me, me.foods_ordered[0], grid)
 
     for item in safety:
@@ -206,7 +222,7 @@ def move():
             output = item
             break
         else:
-            output = safety[-1]
+            output = safety[randint(0, len(safety)-1)] #returns a random safe output
     
     # Info for current turn, for log purposes
     print("Turn: %s" % (data['turn']))
