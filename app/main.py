@@ -184,18 +184,16 @@ def safe(agrid, moi, enemy, prepend):
     
 
 def path(frm, to, agrid):
-    dy = to[0] - frm.head[0]
-    dx = to[1] - frm.head[1]
     possible = []
 
-    if dy > 0:
+    if to[0]>frm.head[0]:
         possible.append('down')
-    elif dy < 0:
+    elif to[0]<frm.head[0]:
         possible.append('up')
 
-    if dx > 0:
+    if to[1]>frm.head[1]:
         possible.append('right')
-    elif dx < 0:
+    elif to[1]<frm.head[1]:
         possible.append('left')
 
     return(possible)
