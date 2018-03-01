@@ -160,19 +160,21 @@ def safe(agrid, moi, enemy, prepend):
     for key in directions:
         if (0 <= directions[key][0] < prepend['height'] 
                 and 0 <= directions[key][1] < prepend['width'] 
-                and agrid.coord[directions[key][0]][directions[key][1]].
+                and agrid.coord[directions[key][0]][directions[key][1]].\
                     is_snakebody == False 
-                and agrid.coord[directions[key][0]][directions[key][1]].
+                and agrid.coord[directions[key][0]][directions[key][1]].\
                     is_snakenemy == False): 
-            if agrid.coord[directions[key][0]][directions[key][1]].
+            if agrid.coord[directions[key][0]][directions[key][1]].\
                         is_snaketail == True:
-                if agrid.coord[directions[key][0]][directions[key][1]].
+                if agrid.coord[directions[key][0]][directions[key][1]].\
                             snake_id != moi.id:
                     target_snake = [target for target in enemy 
-                                    if target.id == agrid.coord[directions[key][0]][directions[key][1]].snake_id]
+                                    if target.id == agrid.coord\
+                                            [directions[key][0]][directions[key][1]].snake_id]
                     if distance(target_snake[0], target_snake[0].foods_ordered[0].coord) > 1:
                         space.append(key)
-                elif agrid.coord[directions[key][0]][directions[key][1]].snake_id == moi.id: # Only valid when goal is food
+                elif agrid.coord[directions[key][0]][directions[key][1]].snake_id == moi.id: 
+                    # Only valid when goal is food
                     if distance(moi, moi.foods_ordered[0].coord) > 1:
                         space.append(key)
             else:
