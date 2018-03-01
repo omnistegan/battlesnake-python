@@ -64,9 +64,11 @@ class Cell:
 
 class Grid:
     def __init__(self, prepend):
+        self.height = prepend['height']
+        self.width = prepend['width']
         self.coord = [[Cell(row, col) 
-                       for col in range(prepend['width'])] 
-                       for row in range(prepend['height'])]
+                       for col in range(self.width)] 
+                       for row in range(self.height)]
 
     def print(self):
         for row in self.coord:
@@ -93,8 +95,10 @@ class Grid:
             
         if enemy.longer_than_me == True:
             for i in range(-1,2):
-                self.coord[enemy.head[0]+i][enemy.head[1]].safe = False
-                self.coord[enemy.head[0]][enemy.head[1]+i].safe = False
+                if 0 <= enemy.head[0]+i < self.height\
+                        and 0 <= enemy.head[1]+i < self.width:
+                    self.coord[enemy.head[0]+i][enemy.head[1]].safe = False
+                    self.coord[enemy.head[0]][enemy.head[1]+i].safe = False
 
         if enemy.dist_closest_food == 1:
             self.coord[enemy.tail[0]][enemy.tail[1]].safe = False
