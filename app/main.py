@@ -247,7 +247,6 @@ def move():
     print('route: %s' % (route))
     print('safety: %s' % (safety))
     print('output: %s' % (output))
-    print(enemies[0].longer_than_me)
 
     return {
         'move': output,
