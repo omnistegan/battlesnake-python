@@ -96,7 +96,7 @@ class Grid:
                 self.coord[enemy.head[0]+i][enemy.head[1]].safe = False
                 self.coord[enemy.head[0]][enemy.head[1]+i].safe = False
 
-        if enemy.dist_closestfood == 1:
+        if enemy.dist_closest_food == 1:
             self.coord[enemy.tail[0]][enemy.tail[1]].safe = False
 
     def me_place(self, moi):
@@ -111,7 +111,7 @@ class Grid:
                 self.coord[moi.body[j][0]][moi.body[j][1]].safe = False
                 self.coord[moi.body[j][0]][moi.body[j][1]].snake_id = moi.id
 
-            if moi.dist_closestfood == 1:
+            if moi.dist_closest_food == 1:
                 self.coord[moi.tail[0]][moi.tail[1]].safe = False
                  
 
@@ -139,7 +139,7 @@ class Enemy:
         self.longer_than_me = self.length >= moi.length
         self.id = prepend['id']
         self.foods_ordered = Food.order(nourriture, self)
-        self.dist_closestfood = distance(self, self.foods_ordered[0].coord)
+        self.dist_closest_food = distance(self, self.foods_ordered[0].coord)
 
         # distance to food
         # distance to me
@@ -158,7 +158,7 @@ class Me:
         self.length = prepend['length']
         self.id = prepend['id']
         self.foods_ordered = Food.order(nourriture, self)
-        self.dist_closestfood = distance(self, self.foods_ordered[0].coord)
+        self.dist_closest_food = distance(self, self.foods_ordered[0].coord)
 
 
 ################################################################################
