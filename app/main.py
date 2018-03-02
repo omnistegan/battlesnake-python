@@ -183,6 +183,7 @@ def safe(agrid, moi, enemy, prepend):
             } 
 
     space = []
+    backup_space = []
 
     for key in directions:
         if (0 <= directions[key][0] < prepend['height'] 
@@ -190,8 +191,33 @@ def safe(agrid, moi, enemy, prepend):
                 and agrid.coord[directions[key][0]][directions[key][1]].\
                     safe == True): 
             space.append(key)
+    
+    for key in directions:
+        if (0 <= directions[key][0] < prepend['height'] 
+                and 0 <= directions[key][1] < prepend['width'] 
+                and agrid.coord[directions[key][0]][directions[key][1]].\
+                    is_snakenemy == False
+                and agrid.coord[directions[key][0]][directions[key][1]].\
+                    is_snakebody == False
+                and agrid.coord[directions[key][0]][directions[key][1]].\
+                    is_food == False):
+            if agrid.coord[directions[key][0]][directions[key][1]].\
+                        is_snaketail == True:
+                if agrid.coord[directions[key][0]][directions[key][1]].\
+                        snake_id != moi.id:
+                    target_snake = [target for target in enemy
+                                    if target.id == agrid.coord\
+                                            [directions[key][0]][directions[key][1]].snake_id]
+                    if target_snake[0].dist_closest_food > 1:
+                        backup_space.append(key)
+                elif agrid.coord[directions[key][0]][directions[key][1]].\
+                        snake_id == moi.id:
+                    if moi.distance_closest_food > 1:
+                        backup_space.append(key)
+            else:
+                backup_space.append(key)
 
-    return(space)
+    return(space, backup_space)
     
 
 def path(frm, to, agrid):
@@ -236,20 +262,24 @@ def move():
     grid.print()
     
     # Route setter
-    safety = safe(grid, me, enemies, data)
+    safety, backup_safety = safe(grid, me, enemies, data)
     route = path(me, me.foods_ordered[0].coord, grid)
 
-    for item in safety:
-        if item in route:
-            output = item
-            break
-        else:
-            output = safety[randint(0, len(safety)-1)] #returns a random safe output
+    if safety:
+        for item in safety:
+            if item in route:
+                output = item
+                break
+            else:
+                output = safety[randint(0, len(safety)-1)] #returns a random safe output
+    else:
+        output = backup_safety[randint(0, len(backup_safety)-1)]
     
     # Info for current turn, for log purposes
     print("Turn: %s" % (data['turn']))
     print('route: %s' % (route))
     print('safety: %s' % (safety))
+    print('backup_safety: %s' % (backup_safety))
     print('output: %s' % (output))
 
     return {
