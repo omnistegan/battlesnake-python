@@ -250,65 +250,65 @@ def target_tail(enemoir, moi, agrid):
         if target.length <= 3:
             output = target.tail
         
-        elif target.length > 3: 
+        else: 
             if target.tail == target.body[-1]: # Checks if tail is same as last body segment, then look at second last body segment instead
-                if target.tail[0] == target.body[-2][0]:
-                    if target.tail[1] < target.body[-2][1]:
-                        if target.tail[1]-2 > 0:
-                            output = [target.tail[0], target.tail[1]-2]
-                        elif target.tail[1]-2 > 0:
-                            output = [target.tail[0], target.tail[1]-2]
+                segment = -2
+            else: 
+                segment = -1
+
+            if target.tail[0] == target.body[segment][0]:
+                if target.tail[1] < target.body[segment][1]:
+                    if (target.tail[1]-2 >= 0
+                        and agrid.coord[target.tail[0]]\
+                                       [target.tail[1]-2].\
+                                safe == True):
+                        output = [target.tail[0], target.tail[1]-2]
+                    elif (target.tail[1]-1 >= 0 
+                          and agrid.coord[target.tail[0]]\
+                                         [target.tail[1]-1].\
+                                safe == True):
+                        output = [target.tail[0], target.tail[1]-1]
+                    else:
                         output = target.tail
-                    elif target.tail[1]+2 < agrid.width:
+                
+                elif target.tail[1] > target.body[segment][1]:
+                    if (target.tail[1]+2 < agrid.width
+                        and agrid.coord[target.tail[0]][target.tail[1]+2].\
+                                    safe == True):
                         output = [target.tail[0], target.tail[1]+2]
-                    elif target.tail[1]+1 < agrid.width:
+                    elif (target.tail[1]+1 < agrid.width
+                          and agrid.coord[target.tail[0]][target.tail[1]+1].\
+                                    safe == True):
                         output = [target.tail[0], target.tail[1]+1]
                     else:
                         output = target.tail
 
-                elif target.tail[1] == target.body[-2][1]:
-                    if target.tail[0] < target.body[-2][0]:
-                        if target.tail[0]-2 > 0:
-                            output = [target.tail[0]-2, target.tail[1]]
-                        elif target.tail[0]-2 > 0:
-                            output = [target.tail[0]-2, target.tail[1]]
-                        output = target.tail
-                    elif target.tail[0]+2 < agrid.height:
-                        output = [target.tail[0]+2, target.tail[1]]
-                    elif target.tail[0]+1 < agrid.height:
-                        output = [target.tail[0]+1, target.tail[1]]
-                    else:
-                        output = target.tail
-
-            elif target.tail[0] == target.body[-1][0]:
-                if target.tail[1] < target.body[-1][1]:
-                    if target.tail[1]-2 > 0:
-                        output = [target.tail[0], target.tail[1]-2]
-                    elif target.tail[1]-1 > 0:
-                        output = [target.tail[0], target.tail[1]-1]
-                    else:
-                        output = target.tail
-                elif target.tail[1]+2 < agrid.width:
-                    output = [target.tail[0], target.tail[1]+2]
-                elif target.tail[1]+1 < agrid.width:
-                    output = [target.tail[0], target.tail[1]+1]
-                else:
-                    output = target.tail
-
-            elif target.tail[1] == target.body[-1][1]:
-                if target.tail[0] < target.body[-1][0]:
-                    if target.tail[0]-2 > 0:
+            elif target.tail[1] == target.body[segment][1]:
+                if target.tail[0] < target.body[segment][0]:
+                    if (target.tail[0]-2 >= 0
+                        and agrid.coord[target.tail[0]-2]\
+                                       [target.tail[1]].\
+                                safe == True):
                         output = [target.tail[0]-2, target.tail[1]]
-                    elif target.tail[0]-1 > 0:
+                    elif (target.tail[0]-1 >= 0 
+                          and agrid.coord[target.tail[0]-1]\
+                                         [target.tail[1]].\
+                                safe == True):
                         output = [target.tail[0]-1, target.tail[1]]
                     else:
                         output = target.tail
-                elif target.tail[0]+2 < agrid.height:
-                    output = [target.tail[0]+2, target.tail[1]]
-                elif target.tail[0]+1 < agrid.height:
-                    output = [target.tail[0]+1, target.tail[1]]
-                else:
-                    output = target.tail
+
+                elif target.tail[0] > target.body[segment][0]:
+                    if (target.tail[0]+2 < agrid.height
+                          and agrid.coord[target.tail[0]+2][target.tail[1]].\
+                                  safe == True):
+                        output = [target.tail[0]+2, target.tail[1]]
+                    elif (target.tail[0]+1 < agrid.height 
+                          and agrid.coord[target.tail[0]+1][target.tail[1]].\
+                                  safe == True):
+                        output = [target.tail[0]+1, target.tail[1]]
+                    else:
+                        output = target.tail
 
         return(output)
 
