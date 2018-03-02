@@ -151,8 +151,11 @@ class Snake:
                 enemy_unordered[1])
         enemy = [item[0] for item in enemy_unordered]
         target = enemy[0]
+
+        if target.length <= 3:
+            output = target.tail
         
-        if target.length > 3: 
+        elif target.length > 3: 
             if target.tail == target.body[-1]: # Checks if tail is same as last body segment, then look at second last body segment instead
                 if target.tail[0] == target.body[-2][0]:
                     if target.tail[1] < target.body[-2][1]:
@@ -169,7 +172,7 @@ class Snake:
                         output = target.tail
 
                 elif target.tail[1] == target.body[-2][1]:
-                    if target.tail[0] < target.body[0]:
+                    if target.tail[0] < target.body[-2][0]:
                         if target.tail[0]-2 > 0:
                             output = [target.tail[0]-2, target.tail[1]]
                         elif target.tail[0]-2 > 0:
@@ -355,6 +358,7 @@ def move():
     print('route: %s' % (route))
     print('safety: %s' % (safety))
     print('backup_safety: %s' % (backup_safety))
+    print('Health: %s' % me.health)
     print('target tail is: %s' % target_practice)
     print('goal is: %s' % goal)
     print('output: %s' % (output))
