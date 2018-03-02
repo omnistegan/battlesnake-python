@@ -213,7 +213,7 @@ def safe(agrid, moi, enemy, prepend):
                         backup_space.append(key)
                 elif agrid.coord[directions[key][0]][directions[key][1]].\
                         snake_id == moi.id:
-                    if moi.distance_closest_food > 1:
+                    if moi.dist_closest_food > 1:
                         backup_space.append(key)
             else:
                 backup_space.append(key)
