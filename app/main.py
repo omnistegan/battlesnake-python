@@ -144,7 +144,102 @@ class Snake:
         self.foods_ordered = Food.order(nourriture, self)
         self.dist_closest_food = distance(self, self.foods_ordered[0].coord)
 
-    def target_tail(enemoir, moi, agrid):
+class Enemy(Snake):
+    def __init__(self, prepend, moi, nourriture):
+        super().__init__(prepend, nourriture)
+        self.longer_than_me = self.length >= moi.length
+
+        # distance to food
+        # distance to me
+
+class Me(Snake):
+    def __init__(self, prepend, nourriture):
+        super().__init__(prepend, nourriture)
+        self.health = prepend['health']
+
+
+################################################################################
+
+
+def distance(frm, to):
+    dy = abs(to[0] - frm.head[0])
+    dx = abs(to[1] - frm.head[1])
+    return(sum([dy, dx]))
+   
+
+def path(frm, to, agrid):
+    possible = []
+
+    if to[0]>frm.head[0]:
+        possible.append('down')
+    elif to[0]<frm.head[0]:
+        possible.append('up')
+
+    if to[1]>frm.head[1]:
+        possible.append('right')
+    elif to[1]<frm.head[1]:
+        possible.append('left')
+
+    return(possible)
+
+
+def goal_set(moi, enemoir, agrid):
+    if moi.health <= 30:
+        output = moi.foods_ordered[0].coord
+        log = "food"
+    else:
+        output = target_tail(enemoir, moi, agrid)
+        log = "tail"
+    return(output, log)
+
+
+def safe(agrid, moi, enemy, prepend):
+    directions = {
+            'up': [moi.head[0]-1, moi.head[1]],
+            'down': [moi.head[0]+1, moi.head[1]],
+            'left': [moi.head[0], moi.head[1]-1],
+            'right': [moi.head[0], moi.head[1]+1],
+            } 
+
+    space = []
+    backup_space = []
+
+    for key in directions:
+        if (0 <= directions[key][0] < prepend['height'] 
+                and 0 <= directions[key][1] < prepend['width'] 
+                and agrid.coord[directions[key][0]][directions[key][1]].\
+                    safe == True): 
+            space.append(key)
+    
+    for key in directions:
+        if (0 <= directions[key][0] < prepend['height'] 
+                and 0 <= directions[key][1] < prepend['width'] 
+                and agrid.coord[directions[key][0]][directions[key][1]].\
+                    is_snakenemy == False
+                and agrid.coord[directions[key][0]][directions[key][1]].\
+                    is_snakebody == False
+                and agrid.coord[directions[key][0]][directions[key][1]].\
+                    is_food == False):
+            if agrid.coord[directions[key][0]][directions[key][1]].\
+                        is_snaketail == True:
+                if agrid.coord[directions[key][0]][directions[key][1]].\
+                        snake_id != moi.id:
+                    target_snake = [target for target in enemy
+                                    if target.id == agrid.coord\
+                                            [directions[key][0]]\
+                                            [directions[key][1]].snake_id]
+                    if target_snake[0].dist_closest_food > 1:
+                        backup_space.append(key)
+                elif agrid.coord[directions[key][0]][directions[key][1]].\
+                        snake_id == moi.id:
+                    if moi.dist_closest_food > 1:
+                        backup_space.append(key)
+            else:
+                backup_space.append(key)
+
+    return(space, backup_space)
+ 
+def target_tail(enemoir, moi, agrid):
         enemy_unordered = [(enemoir[i], distance(moi, enemoir[i].tail))
                         for i in range(len(enemoir))]
         enemy_ordered = sorted(enemy_unordered, key = lambda enemy_unordered:\
@@ -217,100 +312,6 @@ class Snake:
 
         return(output)
 
-class Enemy(Snake):
-    def __init__(self, prepend, moi, nourriture):
-        super().__init__(prepend, nourriture)
-        self.longer_than_me = self.length >= moi.length
-
-        # distance to food
-        # distance to me
-
-class Me(Snake):
-    def __init__(self, prepend, nourriture):
-        super().__init__(prepend, nourriture)
-        self.health = prepend['health']
-
-
-################################################################################
-
-
-def distance(frm, to):
-    dy = abs(to[0] - frm.head[0])
-    dx = abs(to[1] - frm.head[1])
-    return(sum([dy, dx]))
-    
-
-def safe(agrid, moi, enemy, prepend):
-    directions = {
-            'up': [moi.head[0]-1, moi.head[1]],
-            'down': [moi.head[0]+1, moi.head[1]],
-            'left': [moi.head[0], moi.head[1]-1],
-            'right': [moi.head[0], moi.head[1]+1],
-            } 
-
-    space = []
-    backup_space = []
-
-    for key in directions:
-        if (0 <= directions[key][0] < prepend['height'] 
-                and 0 <= directions[key][1] < prepend['width'] 
-                and agrid.coord[directions[key][0]][directions[key][1]].\
-                    safe == True): 
-            space.append(key)
-    
-    for key in directions:
-        if (0 <= directions[key][0] < prepend['height'] 
-                and 0 <= directions[key][1] < prepend['width'] 
-                and agrid.coord[directions[key][0]][directions[key][1]].\
-                    is_snakenemy == False
-                and agrid.coord[directions[key][0]][directions[key][1]].\
-                    is_snakebody == False
-                and agrid.coord[directions[key][0]][directions[key][1]].\
-                    is_food == False):
-            if agrid.coord[directions[key][0]][directions[key][1]].\
-                        is_snaketail == True:
-                if agrid.coord[directions[key][0]][directions[key][1]].\
-                        snake_id != moi.id:
-                    target_snake = [target for target in enemy
-                                    if target.id == agrid.coord\
-                                            [directions[key][0]]\
-                                            [directions[key][1]].snake_id]
-                    if target_snake[0].dist_closest_food > 1:
-                        backup_space.append(key)
-                elif agrid.coord[directions[key][0]][directions[key][1]].\
-                        snake_id == moi.id:
-                    if moi.dist_closest_food > 1:
-                        backup_space.append(key)
-            else:
-                backup_space.append(key)
-
-    return(space, backup_space)
-    
-
-def path(frm, to, agrid):
-    possible = []
-
-    if to[0]>frm.head[0]:
-        possible.append('down')
-    elif to[0]<frm.head[0]:
-        possible.append('up')
-
-    if to[1]>frm.head[1]:
-        possible.append('right')
-    elif to[1]<frm.head[1]:
-        possible.append('left')
-
-    return(possible)
-
-
-def goal_set(moi, enemoir, agrid):
-    if moi.health <= 30:
-        output = moi.foods_ordered[0].coord
-        log = "food"
-    else:
-        output = Snake.target_tail(enemoir, moi, agrid)
-        log = "tail"
-    return(output, log)
 
 
 ###############################################################################
@@ -343,17 +344,17 @@ def move():
     goal, output_log = goal_set(me, enemies, grid)
     route = path(me, goal, grid)
 
-    if safety:
+    if safety: #If safety is not empty
         for item in safety:
             if item in route:
                 output = item
                 break
             else:
-                output = safety[randint(0, len(safety)-1)] #returns a random safe output
-    else:
+                output = safety[randint(0, len(safety)-1)]
+    else: 
         output = backup_safety[randint(0, len(backup_safety)-1)]
 
-    target_practice = Snake.target_tail(enemies, me, grid)
+    target_practice = target_tail(enemies, me, grid)
     
     # Info for current turn, for log purposes
     print("Turn: %s" % (data['turn']))
