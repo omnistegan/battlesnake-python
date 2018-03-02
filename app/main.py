@@ -130,8 +130,8 @@ class Food:
         foods_reordered = [item[0] for item in foods_ordered]
         return(foods_reordered)
 
-class Enemy:
-    def __init__(self, prepend, moi, nourriture):
+class Snake:
+    def __init__(self, prepend, nourriture):
         self.head = [prepend['body']['data'][0]['y'],
                      prepend['body']['data'][0]['x']]
         self.tail = [prepend['body']['data'][-1]['y'], 
@@ -140,29 +140,22 @@ class Enemy:
                       prepend['body']['data'][j]['x']] 
                       for j in range(1, len(prepend['body']['data'])-1)]
         self.length = prepend['length']
-        self.longer_than_me = self.length >= moi.length
         self.id = prepend['id']
         self.foods_ordered = Food.order(nourriture, self)
         self.dist_closest_food = distance(self, self.foods_ordered[0].coord)
+
+class Enemy(Snake):
+    def __init__(self, prepend, moi, nourriture):
+        super().__init__(prepend, nourriture)
+        self.longer_than_me = self.length >= moi.length
 
         # distance to food
         # distance to me
 
-
-class Me:
+class Me(Snake):
     def __init__(self, prepend, nourriture):
-        self.head = [prepend['body']['data'][0]['y'], 
-                     prepend['body']['data'][0]['x']]
-        self.tail = [prepend['body']['data'][-1]['y'], 
-                     prepend['body']['data'][-1]['x']]
-        self.body = [[prepend['body']['data'][j]['y'], 
-                      prepend['body']['data'][j]['x']] 
-                      for j in range(1, len(prepend['body']['data'])-1)]
+        super().__init__(prepend, nourriture)
         self.health = prepend['health']
-        self.length = prepend['length']
-        self.id = prepend['id']
-        self.foods_ordered = Food.order(nourriture, self)
-        self.dist_closest_food = distance(self, self.foods_ordered[0].coord)
 
 
 ################################################################################
