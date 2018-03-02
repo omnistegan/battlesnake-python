@@ -144,6 +144,76 @@ class Snake:
         self.foods_ordered = Food.order(nourriture, self)
         self.dist_closest_food = distance(self, self.foods_ordered[0].coord)
 
+    def target_tail(enemoir, moi, agrid):
+        enemy_unordered = [(enemoir[i], distance(moi, enemoir[i].tail))
+                        for i in range(len(enemoir))]
+        enemy_ordered = sorted(enemy_unordered, key = lambda enemy_unordered:\
+                enemy_unordered[1])
+        enemy = [item[0] for item in enemy_unordered]
+        target = enemy[0]
+        
+        if target.length > 3: 
+            if target.tail == target.body[-1]: # Checks if tail is same as last body segment, then look at second last body segment instead
+                if target.tail[0] == target.body[-2][0]:
+                    if target.tail[1] < target.body[-2][1]:
+                        if target.tail[1]-2 > 0:
+                            output = [target.tail[0], target.tail[1]-2]
+                        elif target.tail[1]-2 > 0:
+                            output = [target.tail[0], target.tail[1]-2]
+                        output = target.tail
+                    elif target.tail[1]+2 < agrid.width:
+                        output = [target.tail[0], target.tail[1]+2]
+                    elif target.tail[1]+1 < agrid.width:
+                        output = [target.tail[0], target.tail[1]+1]
+                    else:
+                        output = target.tail
+
+                elif target.tail[1] == target.body[-2][1]:
+                    if target.tail[0] < target.body[0]:
+                        if target.tail[0]-2 > 0:
+                            output = [target.tail[0]-2, target.tail[1]]
+                        elif target.tail[0]-2 > 0:
+                            output = [target.tail[0]-2, target.tail[1]]
+                        output = target.tail
+                    elif target.tail[0]+2 < agrid.height:
+                        output = [target.tail[0]+2, target.tail[1]]
+                    elif target.tail[0]+1 < agrid.height:
+                        output = [target.tail[0]+1, target.tail[1]]
+                    else:
+                        output = target.tail
+
+            elif target.tail[0] == target.body[-1][0]:
+                if target.tail[1] < target.body[-1][1]:
+                    if target.tail[1]-2 > 0:
+                        output = [target.tail[0], target.tail[1]-2]
+                    elif target.tail[1]-1 > 0:
+                        output = [target.tail[0], target.tail[1]-1]
+                    else:
+                        output = target.tail
+                elif target.tail[1]+2 < agrid.width:
+                    output = [target.tail[0], target.tail[1]+2]
+                elif target.tail[1]+1 < agrid.width:
+                    output = [target.tail[0], target.tail[1]+1]
+                else:
+                    output = target.tail
+
+            elif target.tail[1] == target.body[-1][1]:
+                if target.tail[0] < target.body[-1][0]:
+                    if target.tail[0]-2 > 0:
+                        output = [target.tail[0]-2, target.tail[1]]
+                    elif target.tail[0]-1 > 0:
+                        output = [target.tail[0]-1, target.tail[1]]
+                    else:
+                        output = target.tail
+                elif target.tail[0]+2 < agrid.height:
+                    output = [target.tail[0]+2, target.tail[1]]
+                elif target.tail[0]+1 < agrid.height:
+                    output = [target.tail[0]+1, target.tail[1]]
+                else:
+                    output = target.tail
+
+        return(output)
+
 class Enemy(Snake):
     def __init__(self, prepend, moi, nourriture):
         super().__init__(prepend, nourriture)
@@ -230,6 +300,14 @@ def path(frm, to, agrid):
     return(possible)
 
 
+def goal_set(moi, enemoir, agrid):
+    if moi.health <= 30:
+        output = moi.foods_ordered[0].coord
+    else:
+        output = Snake.target_tail(enemoir, moi, agrid)
+    return(output)
+
+
 ###############################################################################
 
 
@@ -257,7 +335,8 @@ def move():
     
     # Route setter
     safety, backup_safety = safe(grid, me, enemies, data)
-    route = path(me, me.foods_ordered[0].coord, grid)
+    goal = goal_set(me, enemies, grid)
+    route = path(me, goal, grid)
 
     if safety:
         for item in safety:
@@ -268,13 +347,18 @@ def move():
                 output = safety[randint(0, len(safety)-1)] #returns a random safe output
     else:
         output = backup_safety[randint(0, len(backup_safety)-1)]
+
+    target_practice = Snake.target_tail(enemies, me, grid)
     
     # Info for current turn, for log purposes
     print("Turn: %s" % (data['turn']))
     print('route: %s' % (route))
     print('safety: %s' % (safety))
     print('backup_safety: %s' % (backup_safety))
+    print('target tail is: %s' % target_practice)
+    print('goal is: %s' % goal)
     print('output: %s' % (output))
+
 
     return {
         'move': output,
