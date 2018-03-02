@@ -306,9 +306,11 @@ def path(frm, to, agrid):
 def goal_set(moi, enemoir, agrid):
     if moi.health <= 30:
         output = moi.foods_ordered[0].coord
+        log = "food"
     else:
         output = Snake.target_tail(enemoir, moi, agrid)
-    return(output)
+        log = "tail"
+    return(output, log)
 
 
 ###############################################################################
@@ -338,7 +340,7 @@ def move():
     
     # Route setter
     safety, backup_safety = safe(grid, me, enemies, data)
-    goal = goal_set(me, enemies, grid)
+    goal, output_log = goal_set(me, enemies, grid)
     route = path(me, goal, grid)
 
     if safety:
@@ -359,6 +361,7 @@ def move():
     print('safety: %s' % (safety))
     print('backup_safety: %s' % (backup_safety))
     print('Health: %s' % me.health)
+    print('Currently targeting: %s' % output_log)
     print('target tail is: %s' % target_practice)
     print('goal is: %s' % goal)
     print('output: %s' % (output))
