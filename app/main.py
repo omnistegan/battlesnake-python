@@ -95,9 +95,9 @@ class Grid:
             
         if enemy.longer_than_me == True:
             for i in range(-1,2):
-                if 0 <= enemy.head[0]+i < self.height\
-                        and 0 <= enemy.head[1]+i < self.width:
+                if 0 <= enemy.head[0]+i < self.height:
                     self.coord[enemy.head[0]+i][enemy.head[1]].safe = False
+                if 0 <= enemy.head[1]+i < self.width:
                     self.coord[enemy.head[0]][enemy.head[1]+i].safe = False
 
         if enemy.dist_closest_food == 1:
