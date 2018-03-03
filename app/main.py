@@ -19,9 +19,9 @@ def start():
 
     return {
         'color': '#00FF00',
-        'taunt': 'hissss...sss',
+        'taunt': 'A dog. Slitheratively speaking.',
         'head_url': head_url,
-        'name': 'our-snake',
+        'name': 'Snakosawrus-rex',
         'head_type': 'pixel',
         'tail_type': 'pixel',
     }
@@ -205,15 +205,15 @@ def safe(agrid, moi, enemy, prepend):
     backup_space = []
 
     for key in directions:
-        if (0 <= directions[key][0] < prepend['height'] 
-                and 0 <= directions[key][1] < prepend['width'] 
+        if (0 <= directions[key][0] < agrid.height
+                and 0 <= directions[key][1] < agrid.width
                 and agrid.coord[directions[key][0]][directions[key][1]].\
                     safe == True): 
             space.append(key)
     
     for key in directions:
-        if (0 <= directions[key][0] < prepend['height'] 
-                and 0 <= directions[key][1] < prepend['width'] 
+        if (0 <= directions[key][0] < agrid.height
+                and 0 <= directions[key][1] < agrid.width
                 and agrid.coord[directions[key][0]][directions[key][1]].\
                     is_snakenemy == False
                 and agrid.coord[directions[key][0]][directions[key][1]].\
@@ -287,6 +287,7 @@ def target_tail(enemoir, moi, agrid):
         
         return(output[-1])
 
+    #def floodfill()
 
 ###############################################################################
 
