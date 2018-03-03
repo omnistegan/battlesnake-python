@@ -280,7 +280,7 @@ def target_tail(enemoir, moi, agrid):
             elif target.tail[0] > target.body[segment][0]:
                 for i in range(-1, -3, -1):
                     if (target.tail[0]-i < agrid.height
-                        and agrid.coord[target.tail[0]][target.tail[1]-i].\
+                        and agrid.coord[target.tail[0]-i][target.tail[1]].\
                                 safe == True):
                         output.append([target.tail[0]-i, target.tail[1]])
         
