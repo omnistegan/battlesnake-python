@@ -248,41 +248,42 @@ def target_tail(enemoir, moi, agrid):
         target = enemy[0]
 
         output = [target.tail]
-        
-        if target.tail == target.body[-1]: # Checks if tail is same as last body segment, then look at second last body segment instead
-            segment = -2
-        else: 
-            segment = -1
 
-        if target.tail[0] == target.body[segment][0]:
-            if target.tail[1] < target.body[segment][1]:
-                for i in range(-1, -3, -1):
-                    if (target.tail[1]+i >= 0
-                        and agrid.coord[target.tail[0]][target.tail[1]+i].\
-                                safe == True):
-                        output.append([target.tail[0], target.tail[1]+i])
-            
-            elif target.tail[1] > target.body[segment][1]:
-                for i in range(-1, -3, -1):
-                    if (target.tail[1]-i < agrid.width
-                        and agrid.coord[target.tail[0]][target.tail[1]-i].\
-                                safe == True):
-                        output.append([target.tail[0], target.tail[1]-i])
+        if target.length > 3:
+            if target.tail == target.body[-1]: # Checks if tail is same as last body segment, then look at second last body segment instead
+                segment = -2
+            else: 
+                segment = -1
 
-        elif target.tail[1] == target.body[segment][1]:
-            if target.tail[0] < target.body[segment][0]:
-                for i in range(-1, -3, -1):
-                    if (target.tail[0]+i >= 0
-                        and agrid.coord[target.tail[0]+i][target.tail[1]].\
-                                safe == True):
-                        output.append([target.tail[0]+i, target.tail[1]])
+            if target.tail[0] == target.body[segment][0]:
+                if target.tail[1] < target.body[segment][1]:
+                    for i in range(-1, -3, -1):
+                        if (target.tail[1]+i >= 0
+                            and agrid.coord[target.tail[0]][target.tail[1]+i].\
+                                    safe == True):
+                            output.append([target.tail[0], target.tail[1]+i])
+                
+                elif target.tail[1] > target.body[segment][1]:
+                    for i in range(-1, -3, -1):
+                        if (target.tail[1]-i < agrid.width
+                            and agrid.coord[target.tail[0]][target.tail[1]-i].\
+                                    safe == True):
+                            output.append([target.tail[0], target.tail[1]-i])
 
-            elif target.tail[0] > target.body[segment][0]:
-                for i in range(-1, -3, -1):
-                    if (target.tail[0]-i < agrid.height
-                        and agrid.coord[target.tail[0]-i][target.tail[1]].\
-                                safe == True):
-                        output.append([target.tail[0]-i, target.tail[1]])
+            elif target.tail[1] == target.body[segment][1]:
+                if target.tail[0] < target.body[segment][0]:
+                    for i in range(-1, -3, -1):
+                        if (target.tail[0]+i >= 0
+                            and agrid.coord[target.tail[0]+i][target.tail[1]].\
+                                    safe == True):
+                            output.append([target.tail[0]+i, target.tail[1]])
+
+                elif target.tail[0] > target.body[segment][0]:
+                    for i in range(-1, -3, -1):
+                        if (target.tail[0]-i < agrid.height
+                            and agrid.coord[target.tail[0]-i][target.tail[1]].\
+                                    safe == True):
+                            output.append([target.tail[0]-i, target.tail[1]])
         
         return(output[-1])
 
