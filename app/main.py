@@ -104,19 +104,20 @@ class Grid:
             self.coord[enemy.tail[0]][enemy.tail[1]].safe = False
 
     def me_place(self, moi):
-            self.coord[moi.head[0]][moi.head[1]].is_snakehead = True
-            self.coord[moi.head[0]][moi.head[1]].snake_id = moi.id
+        self.coord[moi.head[0]][moi.head[1]].is_snakehead = True
+        #self.coord[moi.head[0]][moi.head[1]].safe = False
+        self.coord[moi.head[0]][moi.head[1]].snake_id = moi.id
 
-            self.coord[moi.tail[0]][moi.tail[1]].is_snaketail = True    
-            self.coord[moi.tail[0]][moi.tail[1]].snake_id = moi.id
+        self.coord[moi.tail[0]][moi.tail[1]].is_snaketail = True    
+        self.coord[moi.tail[0]][moi.tail[1]].snake_id = moi.id
 
-            for j in range(len(moi.body)):
-                self.coord[moi.body[j][0]][moi.body[j][1]].is_snakebody = True
-                self.coord[moi.body[j][0]][moi.body[j][1]].safe = False
-                self.coord[moi.body[j][0]][moi.body[j][1]].snake_id = moi.id
+        for j in range(len(moi.body)):
+            self.coord[moi.body[j][0]][moi.body[j][1]].is_snakebody = True
+            self.coord[moi.body[j][0]][moi.body[j][1]].safe = False
+            self.coord[moi.body[j][0]][moi.body[j][1]].snake_id = moi.id
 
-            if moi.dist_closest_food == 1:
-                self.coord[moi.tail[0]][moi.tail[1]].safe = False
+        if moi.dist_closest_food == 1:
+            self.coord[moi.tail[0]][moi.tail[1]].safe = False
                  
 
 class Food:
@@ -287,7 +288,52 @@ def target_tail(enemoir, moi, agrid):
         
         return(output[-1])
 
-    #def floodfill()
+def floodfill(key, moi, agrid):
+    directions = {
+        'up': [moi.head[0], -1, -1],
+        'down': [moi.head[0], agrid.height, 1],
+        'left': [moi.head[1], -1, -1],
+        'right': [moi.head[1], agrid.width, 1]}
+
+    matches = {
+        'up': ['left', 'right'],
+        'down': ['left', 'right'],
+        'left': ['up', 'down'],
+        'right': ['up', 'down']}
+
+    count = 0
+
+    for coord1 in range(directions[key][0], directions[key][1], 
+                        directions[key][2]):
+        for i in range(len(matches[key])):
+            checker = True
+            for coord2 in range(directions[matches[key][i]][0]+i,
+                                    directions[matches[key][i]][1],
+                                    directions[matches[key][i]][2]):
+                if key == 'up' or key == 'down':
+                    if checker == True:
+                        if agrid.coord[coord1][coord2].safe == True:
+                            count += 1
+                        else:
+                            checker = False
+                else:
+                    if checker == True:
+                        if agrid.coord[coord2][coord1].safe == True:
+                            count += 1
+                        else:
+                            checker = False
+
+    
+    return(count-1)
+
+def floodfill_reorder(space, moi, agrid):
+    espace = [(space[i], floodfill(space[i], moi, agrid)) for i in   
+              range(len(space))]
+    espace_ordered = sorted(espace, key = lambda espace: espace[1], reverse=True)
+    espace_reordered = [item[0] for item in espace_ordered]
+    
+    return(espace_reordered)
+
 
 ###############################################################################
 
@@ -316,32 +362,36 @@ def move():
     
     # Route setter
     safety, backup_safety = safe(grid, me, enemies, data)
+    flooding_safe = floodfill_reorder(safety, me, grid)
     goal, output_log = goal_set(me, enemies, grid)
     route = path(me, goal, grid)
 
-    if safety: #If safety is not empty
-        for item in safety:
+    if flooding_safe: #If safety is not empty
+        for item in flooding_safe:
             if item in route:
                 output = item
                 break
             else:
-                output = safety[randint(0, len(safety)-1)]
+                output = flooding_safe[0]
     else: 
         output = backup_safety[randint(0, len(backup_safety)-1)]
 
     target_practice = target_tail(enemies, me, grid)
+
+    #flood = floodfill('up', me, grid)
+    #print(flood)
     
     # Info for current turn, for log purposes
+    print('Currently targeting: %s' % output_log)
     print("Turn: %s" % (data['turn']))
     print('Route: %s' % (route))
+    print('Floodfill Safety: %s' % (flooding_safe))
     print('Safety: %s' % (safety))
     print('Backup_safety: %s' % (backup_safety))
     print('Health: %s' % me.health)
-    print('Currently targeting: %s' % output_log)
     print('Target tail is: %s' % target_practice)
     print('Goal is: %s' % goal)
     print('output: %s' % (output))
-
 
     return {
         'move': output,
