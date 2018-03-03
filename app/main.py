@@ -345,7 +345,7 @@ def move():
 
     return {
         'move': output,
-        'taunt': 'python!'
+        'taunt': 'A dog. Slitheratively speaking.'
     }
 
 
