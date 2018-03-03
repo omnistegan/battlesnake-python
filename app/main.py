@@ -284,7 +284,6 @@ def target_tail(enemoir, moi, agrid):
                                 safe == True):
                         output.append([target.tail[0]-i, target.tail[1]])
         
-        print(output)
         return(output[-1])
 
 
@@ -332,13 +331,13 @@ def move():
     
     # Info for current turn, for log purposes
     print("Turn: %s" % (data['turn']))
-    print('route: %s' % (route))
-    print('safety: %s' % (safety))
-    print('backup_safety: %s' % (backup_safety))
+    print('Route: %s' % (route))
+    print('Safety: %s' % (safety))
+    print('Backup_safety: %s' % (backup_safety))
     print('Health: %s' % me.health)
     print('Currently targeting: %s' % output_log)
-    print('target tail is: %s' % target_practice)
-    print('goal is: %s' % goal)
+    print('Target tail is: %s' % target_practice)
+    print('Goal is: %s' % goal)
     print('output: %s' % (output))
 
 
