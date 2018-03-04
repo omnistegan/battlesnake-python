@@ -405,7 +405,7 @@ def floodfill_reorder(space, moi, agrid):
 
     return(espace_reordered)
 
-
+-1
 ###############################################################################
 
 
@@ -442,12 +442,10 @@ def move():
     if flooding_safe: #If safety is not empty
         for item in flooding_safe:
             if output_log == 'food':
-                if item in route:
+                if item in flooding_route:
                     output = item
                     break
             elif output_log == 'tail':
-                output = flooding_backup[0]
-            else:
                 output = flooding_safe[0]
     else:
         output = flooding_backup[0]
