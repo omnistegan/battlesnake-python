@@ -374,7 +374,7 @@ def move():
             else:
                 output = flooding_safe[0]
     else: 
-        output = backup_safety[randint(0, len(backup_safety)-1)]
+        output = backup_safety[0]
 
     target_practice = target_tail(enemies, me, grid)
 
