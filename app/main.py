@@ -283,72 +283,51 @@ def target_tail(enemoir, moi, agrid):
         return(output[-1])
 
 
-def checkup(y, x, agrid):
-    count = 0
-    while (0 <= y and agrid.coord[y][x].is_snakenemy == False and agrid.coord[y][x].is_snakebody == False):
-        count += 1
-        y -= 1
-    return(count)
+def check(direction, y, x, agrid):
+    change = {'up': [-1, 0],
+              'down': [1, 0],
+              'left': [0, -1],
+              'right': [0, 1]}
 
-def checkdown(y, x, agrid):
-    count = 0
-    while (y < agrid.height and agrid.coord[y][x].is_snakenemy == False and agrid.coord[y][x].is_snakebody == False):
-        count += 1
-        y += 1
-    return(count)
+    y += change[direction][0]
+    x += change[direction][1]
 
-def checkleft(y, x, agrid):
     count = 0
-    while (0 <= x and agrid.coord[y][x].is_snakenemy == False and agrid.coord[y][x].is_snakebody == False):
+    while(0 <= y < agrid.height and 0 <= x < agrid.width
+            and agrid.coord[y][x].is_snakenemy == False
+            and agrid.coord[y][x].is_snakebody == False):
         count += 1
-        x -= 1
-    return(count)
+        y += change[direction][0]
+        x += change[direction][1]
 
-def checkright(y, x, agrid):
-    count = 0
-    while (x < agrid.width and agrid.coord[y][x].is_snakenemy == False and agrid.coord[y][x].is_snakebody == False):
-        count += 1
-        x += 1
     return(count)
 
 
 def floodfill(key, moi, agrid):
-    y1 = moi.head[0]
-    x1 = moi.head[1]
+    y = moi.head[0]
+    x = moi.head[1]
+
+    direction_parameter = {'vertical': ['left', 'right'],
+                           'horizontal': ['up', 'down']}
+    parameter = {'up': -1, 'down': 1,
+                 'left': -1, 'right': 1}
+
     sum = 0
-
-    if key == 'up':
-        size = checkup(y1-1, x1, agrid)
+    
+    if key == 'up' or key == 'down':
+        size = check(key, y, x, agrid)
         sum += size
-        for i in range(1, size+1):
-            sum += checkleft(y1-i, x1-1, agrid)
-            sum += checkright(y1-i, x1+1, agrid)
-
-    elif key == 'down':
-        size = checkdown(y1+1, x1, agrid)
+        for dir in direction_parameter['vertical']:
+            for i in range(1, size+1):
+                sum += check(dir, y+(i*parameter[key]), x, agrid)
+     
+    if key == 'left' or key == 'right':
+        size = check(key, y, x, agrid)
         sum += size
-        for i in range(1, size+1):
-            sum += checkleft(y1+i, x1-1, agrid)
-            sum += checkright(y1+i, x1+1, agrid)
-
-    elif key == 'left':
-        size = checkleft(y1, x1-1, agrid)
-        sum += size
-        for i in range(1, size+1):
-            sum += checkdown(y1+1, x1-i, agrid)
-            sum += checkup(y1-1, x1-i, agrid)
-
-    elif key == 'right':
-        size = checkright(y1, x1+1, agrid)
-        sum += size
-        print(sum)
-        for i in range(1, size+1):
-            sum += checkdown(y1+1, x1+i, agrid)
-            print(checkdown(y1, x1+i, agrid))
-            sum += checkup(y1-1, x1+i, agrid)
-            print(checkup(y1, x1+i, agrid))
-
-    print(key, sum)
+        for dir in direction_parameter['horizontal']:
+            for i in range(1, size+1):
+                sum += check(dir, y, x+(i*parameter[key]), agrid)
+            
     return(sum)
 
 
@@ -408,21 +387,24 @@ def move():
 
     target_practice = target_tail(enemies, me, grid)
 
-    #flood = floodfill('up', me, grid)
-    #print(flood)
 
     # Info for current turn, for log purposes
+    print('Floodfill Up: %s' % (floodfill('up', me, grid)))
+    print('Floodfill Down: %s' % (floodfill('down', me, grid)))
+    print('Floodfill Left: %s' % (floodfill('left', me, grid)))
+    print('Floodfill Right: %s' % (floodfill('right', me, grid)))
+    print('Health: %s' % (me.health))
     print('Currently targeting: %s' % output_log)
     print("Turn: %s" % (data['turn']))
     print('Route: %s' % (route))
-    print('Flood route: %s' %flooding_route)
-    print('Flooding Safe: %s' % (flooding_safe))
+    print('Flood route: %s' % (flooding_route))
     print('Safety: %s' % (safety))
-    print('Backup_safety: %s' % (backup_safety))
-    print('Flood backup: %s' % flooding_backup)
-    print('Health: %s' % me.health)
-    print('Target tail is: %s' % target_practice)
-    print('Goal is: %s' % goal)
+    print('Flood Safe: %s' % (flooding_safe))
+    print('Backup: %s' % (backup_safety))
+    print('Flood backup: %s' % (flooding_backup))
+    print('Target tail is: %s' % (target_practice))
+    print('Target food is: %s' % (me.foods_ordered[0].coord))
+    print('Goal is: %s' % (goal))
     print('output: %s' % (output))
 
     return {
