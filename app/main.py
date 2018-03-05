@@ -1,6 +1,5 @@
 import bottle
 import os
-from random import randint
 
 @bottle.route('/static/<path:path>')
 def static(path):
