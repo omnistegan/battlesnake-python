@@ -374,14 +374,16 @@ def move():
     route = path(me, goal, grid)
     flooding_route = floodfill_reorder(route, me, grid)
 
+    output = None
     if flooding_safe: #If safety is not empty
         for item in flooding_safe:
             if output_log == 'food':
                 if item in flooding_route:
                     output = item
-                    break
             elif output_log == 'tail':
                 output = flooding_safe[0]
+        if output == None:
+            output = flooding_safe[0]
     else:
         output = flooding_backup[0]
 
