@@ -336,7 +336,7 @@ def floodfill_reorder(space, moi, agrid):
               range(len(space))]
     espace_ordered = sorted(espace, key = lambda espace: espace[1], reverse=True)
     #print(espace)
-    espace_reordered = [item[0] for item in espace_ordered if item[1]>3]
+    espace_reordered = [item[0] for item in espace_ordered]
 
     return(espace_reordered)
 
