@@ -76,8 +76,8 @@ class Grid:
             print("")
 
     def food_place(self, nourriture):
-        for i in range(len(nourriture)):
-            self.coord[nourriture[i].coord[0]][nourriture[i].coord[1]].is_food = True
+        for food in nourriture:
+            self.coord[food.coord[0]][food.coord[1]].is_food = True
 
     def enemy_place(self, enemy):
         self.coord[enemy.head[0]][enemy.head[1]].is_snakenemy = True
@@ -87,10 +87,10 @@ class Grid:
         self.coord[enemy.tail[0]][enemy.tail[1]].is_snaketail = True
         self.coord[enemy.tail[0]][enemy.tail[1]].snake_id = enemy.id
 
-        for j in range(len(enemy.body)):
-            self.coord[enemy.body[j][0]][enemy.body[j][1]].is_snakebody = True
-            self.coord[enemy.body[j][0]][enemy.body[j][1]].safe = False
-            self.coord[enemy.body[j][0]][enemy.body[j][1]].snake_id = enemy.id
+        for body_cell in enemy.body:
+            self.coord[body_cell[0]][body_cell[1]].is_snakebody = True
+            self.coord[body_cell[0]][body_cell[1]].safe = False
+            self.coord[body_cell[0]][body_cell[1]].snake_id = enemy.id
 
         if enemy.longer_than_me == True:
             for i in range(-1,2):
@@ -110,10 +110,10 @@ class Grid:
         self.coord[moi.tail[0]][moi.tail[1]].is_snaketail = True
         self.coord[moi.tail[0]][moi.tail[1]].snake_id = moi.id
 
-        for j in range(len(moi.body)):
-            self.coord[moi.body[j][0]][moi.body[j][1]].is_snakebody = True
-            self.coord[moi.body[j][0]][moi.body[j][1]].safe = False
-            self.coord[moi.body[j][0]][moi.body[j][1]].snake_id = moi.id
+        for body_cell in moi.body:
+            self.coord[body_cell[0]][body_cell[1]].is_snakebody = True
+            self.coord[body_cell[0]][body_cell[1]].safe = False
+            self.coord[body_cell[0]][body_cell[1]].snake_id = moi.id
 
         if moi.dist_closest_food == 1:
             self.coord[moi.tail[0]][moi.tail[1]].safe = False
@@ -124,8 +124,8 @@ class Food:
         self.coord = [prepend['y'], prepend['x']]
 
     def order(nourriture, cls):
-        fods = [(nourriture[i], distance(cls, nourriture[i].coord))
-                 for i in range(len(nourriture))]
+        fods = [(food, distance(cls, food.coord))
+                 for food in nourriture]
         foods_ordered = sorted(fods, key = lambda fods: fods[1])
         foods_reordered = [item[0] for item in foods_ordered]
         return(foods_reordered)
@@ -234,10 +234,10 @@ def safe(agrid, moi, enemy, prepend):
     return(space, backup_space)
 
 def target_tail(enemoir, moi, agrid):
-        enemy_unordered = [(enemoir[i], distance(moi, enemoir[i].tail))
-                        for i in range(len(enemoir))]
         enemy_ordered = sorted(enemy_unordered, key = lambda enemy_unordered:\
                 enemy_unordered[1])
+        enemy_unordered = [(enemy, distance(moi, enemy.tail))
+                        for enemy in enemoir]
         enemy = [item[0] for item in enemy_unordered]
         target = enemy[0]
 
@@ -331,8 +331,7 @@ def floodfill(key, moi, agrid):
 
 
 def floodfill_reorder(space, moi, agrid):
-    espace = [(space[i], floodfill(space[i], moi, agrid)) for i in
-              range(len(space))]
+    espace = [(espace, floodfill(espace, moi, agrid)) for espace in space]
     espace_ordered = sorted(espace, key = lambda espace: espace[1], reverse=True)
     #print(espace)
     espace_reordered = [item[0] for item in espace_ordered]
@@ -350,13 +349,12 @@ def move():
 
     grid = Grid(data)
 
-    foods = [Food(data['food']['data'][i])
-             for i in range(len(data['food']['data']))]
+    foods = [Food(data) for data in data['food']['data']]
 
     me = Me(data['you'], foods)
 
-    enemies = [Enemy(data['snakes']['data'][i], me, foods)
-               for i in range(len(data['snakes']['data']))
+    enemies = [Enemy(data, me, foods)
+               for data in data['snakes']['data']
                if data['snakes']['data'][i]['id'] != me.id]
 
     # Grid for log purposes
