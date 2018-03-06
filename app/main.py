@@ -207,25 +207,18 @@ def safe(agrid, moi, enemy, prepend):
     for key in directions:
         if (0 <= directions[key][0] < agrid.height
                 and 0 <= directions[key][1] < agrid.width
-                and agrid.coord[directions[key][0]][directions[key][1]].\
-                    safe == True):
+                and agrid.coord[directions[key][0]][directions[key][1]].safe == True):
             space.append(key)
 
     for key in directions:
         if (0 <= directions[key][0] < agrid.height
                 and 0 <= directions[key][1] < agrid.width
-                and agrid.coord[directions[key][0]][directions[key][1]].\
-                    is_snakenemy == False
-                and agrid.coord[directions[key][0]][directions[key][1]].\
-                    is_snakebody == False):
-            if agrid.coord[directions[key][0]][directions[key][1]].\
-                        is_snaketail == True:
-                if agrid.coord[directions[key][0]][directions[key][1]].\
-                        snake_id != moi.id:
+                and agrid.coord[directions[key][0]][directions[key][1]].is_snakenemy == False
+                and agrid.coord[directions[key][0]][directions[key][1]].is_snakebody == False):
+            if agrid.coord[directions[key][0]][directions[key][1]].is_snaketail == True:
+                if agrid.coord[directions[key][0]][directions[key][1]].snake_id != moi.id:
                     target_snake = [target for target in enemy
-                                    if target.id == agrid.coord\
-                                            [directions[key][0]]\
-                                            [directions[key][1]].snake_id]
+                                    if target.id == agrid.coord[directions[key][0]][directions[key][1]].snake_id]
                     if target_snake[0].dist_closest_food > 1:
                         backup_space.append(key)
             else:
@@ -234,10 +227,9 @@ def safe(agrid, moi, enemy, prepend):
     return(space, backup_space)
 
 def target_tail(enemoir, moi, agrid):
-        enemy_ordered = sorted(enemy_unordered, key = lambda enemy_unordered:\
-                enemy_unordered[1])
         enemy_unordered = [(enemy, distance(moi, enemy.tail))
                         for enemy in enemoir]
+        enemy_ordered = sorted(enemy_unordered, key = lambda enemy_unordered: enemy_unordered[1])
         enemy = [item[0] for item in enemy_unordered]
         target = enemy[0]
 
