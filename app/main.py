@@ -300,21 +300,21 @@ def floodfill(key, moi, agrid):
                  'left': -1, 'right': 1}
 
     sum = 0
-    
+
     if key == 'up' or key == 'down':
         size = check(key, y, x, agrid)
         sum += size
         for dir in direction_parameter['vertical']:
             for i in range(1, size+1):
                 sum += check(dir, y+(i*parameter[key]), x, agrid)
-     
+
     if key == 'left' or key == 'right':
         size = check(key, y, x, agrid)
         sum += size
         for dir in direction_parameter['horizontal']:
             for i in range(1, size+1):
                 sum += check(dir, y, x+(i*parameter[key]), agrid)
-            
+
     return(sum)
 
 
@@ -347,7 +347,8 @@ def move():
 
     # Grid for log purposes
     grid.food_place(foods)
-    for enemoir in enemies: grid.enemy_place(enemoir)
+    for enemoir in enemies:
+        grid.enemy_place(enemoir)
     grid.me_place(me)
     grid.print()
 
